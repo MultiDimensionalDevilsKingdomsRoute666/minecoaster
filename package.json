@@ -1,0 +1,27 @@
+{
+  "name": "minecoaster",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "A Minecraft-style voxel roller coaster that runs in your browser. All art and audio are procedurally generated.",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:integration": "playwright test",
+    "test:all": "npm run test && npm run build && npm run test:integration"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "three": "^0.184.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.60.0",
+    "@types/node": "^25.9.3",
+    "typescript": "^6.0.3",
+    "vite": "^8.0.16",
+    "vitest": "^4.1.8"
+  }
+}

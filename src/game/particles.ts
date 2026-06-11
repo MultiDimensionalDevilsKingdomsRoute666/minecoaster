@@ -75,6 +75,15 @@ export class ParticleSystem {
     });
   }
 
+  /** Number of currently-alive particles in a pool (test/debug hook). */
+  liveCount(key: string): number {
+    const pool = this.pools.get(key);
+    if (!pool) return 0;
+    let n = 0;
+    for (let i = 0; i < pool.capacity; i++) if (pool.life[i] > 0) n++;
+    return n;
+  }
+
   private emit(
     key: string,
     pos: THREE.Vector3,

@@ -13,9 +13,9 @@ below.)
 
 ![MineCoaster — the vertical loop](docs/screenshot.png)
 
-| The drop (onboard)            | Lake skim                         |
-| ----------------------------- | --------------------------------- |
-| ![drop](docs/shot-drop.png)   | ![splash](docs/shot-splash.png)   |
+| Title screen                   | The drop (onboard)          | Lake skim                       |
+| ------------------------------ | --------------------------- | ------------------------------- |
+| ![title](docs/shot-title.png)  | ![drop](docs/shot-drop.png) | ![splash](docs/shot-splash.png) |
 
 ## Ride it
 
@@ -66,8 +66,9 @@ exploit that with a `warp()` hook to fast-forward whole laps.
 ```bash
 npm test                  # unit tests (Vitest): math, art, worldgen, physics
 npm run build             # typecheck + production build
+npm run browsers          # one-time: download Playwright's Chromium (kept inside node_modules)
 npm run test:integration  # Playwright: boots the real build in Chromium
-npm run test:all          # all of the above
+npm run test:all          # all of the above (after the one-time browsers step)
 ```
 
 Unit tests cover the pure core (spline arc-length and frame orthonormality
@@ -77,7 +78,9 @@ drive the production build in headless Chromium: boot without console errors,
 verify the canvas actually paints a moving scene, ride a full lap via the
 deterministic warp hook, and exercise the camera/mute controls.
 
-CI runs the whole suite on every push and deploys `main` to GitHub Pages.
+CI runs the whole suite on pushes to `main` and on every pull request; when
+the suite is green on `main`, the same workflow deploys the build to GitHub
+Pages.
 
 ## Development
 

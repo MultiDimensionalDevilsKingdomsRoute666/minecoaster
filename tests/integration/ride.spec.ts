@@ -55,6 +55,15 @@ test('WebGL canvas paints a moving scene (not a blank frame)', async ({ page }) 
   await page.waitForTimeout(1200);
   const shot2 = await canvas.screenshot();
   expect(shot1.equals(shot2)).toBe(false);
+
+  // and the motion must be the ride, not just sky animation: the onboard
+  // camera's world position has to travel with the train
+  const cam1 = await page.evaluate(() => window.__MC__!.state().cam);
+  await page.evaluate(() => window.__MC__!.warp(10));
+  await page.waitForTimeout(150);
+  const cam2 = await page.evaluate(() => window.__MC__!.state().cam);
+  const dist = Math.hypot(cam2[0] - cam1[0], cam2[1] - cam1[1], cam2[2] - cam1[2]);
+  expect(dist).toBeGreaterThan(3);
 });
 
 test('a full lap completes with fireworks (deterministic warp)', async ({ page }) => {
@@ -68,10 +77,14 @@ test('a full lap completes with fireworks (deterministic warp)', async ({ page }
       mc.warp(15);
       warped += 15;
     }
+    // run past the staggered burst schedule so rockets actually explode
+    mc.warp(2);
     return { ...mc.state(), warped };
   });
   expect(result.lap).toBeGreaterThanOrEqual(1);
   expect(result.fireworks).toBeGreaterThanOrEqual(1);
+  // particle-level proof: live firework particles exist in the pool
+  expect(result.fireworkParticles).toBeGreaterThan(0);
   expect(result.warped).toBeLessThan(300);
 });
 

@@ -28,6 +28,10 @@ interface McState {
   camera: CameraMode;
   muted: boolean;
   fireworks: number;
+  /** live particles in the firework pool (proof the bursts actually emitted) */
+  fireworkParticles: number;
+  /** camera world position, so tests can assert real ride motion */
+  cam: [number, number, number];
   /** arc-length landmarks of the ride, for tests and debugging */
   landmarks: {
     trackLength: number;
@@ -130,7 +134,8 @@ class Game {
   }
 
   setCamera(mode: CameraMode): void {
-    while (this.rig.mode !== mode) this.rig.cycle();
+    // bounded: an invalid mode from the untyped __MC__ API is a no-op, not a hang
+    for (let i = 0; i < 3 && this.rig.mode !== mode; i++) this.rig.cycle();
   }
 
   private placeCart(): void {
@@ -241,6 +246,12 @@ class Game {
       camera: this.rig.mode,
       muted: this.audio.isMuted,
       fireworks: this.fireworksSeen,
+      fireworkParticles: this.particles.liveCount('firework'),
+      cam: [
+        this.rig.camera.position.x,
+        this.rig.camera.position.y,
+        this.rig.camera.position.z,
+      ],
       landmarks: {
         trackLength: this.ride.track.length,
         dropS: this.ride.dropS,
@@ -280,17 +291,27 @@ class Game {
       );
       this.rig.camera.up.set(0, 1, 0);
       this.rig.camera.lookAt(c);
-      this.gameTime += elapsed * 0.2;
     }
 
     this.particles.update(elapsed);
     this.gameScene.update(this.gameTime, this.cart.position);
 
     const ground = this.world.heightAt(Math.floor(this.cart.position.x), Math.floor(this.cart.position.z));
+    // g felt along the seat normal: gravity component + signed centripetal term
+    const L = this.ride.track.length;
+    const fg = this.ride.track.frameAt(s);
+    const hh = 0.5;
+    const tPrev = this.ride.track.frameAt((s - hh + L) % L).tangent;
+    const tNext = this.ride.track.frameAt((s + hh) % L).tangent;
+    const kSeat =
+      ((tNext.x - tPrev.x) * fg.normal.x +
+        (tNext.y - tPrev.y) * fg.normal.y +
+        (tNext.z - tPrev.z) * fg.normal.z) /
+      (2 * hh);
     this.hud.setStats({
       speed: v,
       height: Math.max(0, this.cart.position.y - ground - 1),
-      g: 1 + (v * v * this.ride.track.curvatureAt(s)) / 9.81,
+      g: fg.normal.y + (v * v * kSeat) / 9.81,
       lap: this.sim.state.lap + (this.mode === 'riding' ? 1 : 0),
       camera: this.rig.mode,
       muted: this.audio.isMuted,

@@ -25,6 +25,15 @@ describe('buildRide', () => {
   test('is deterministic', () => {
     const again = buildRide(world);
     expect(again.track.length).toBe(ride.track.length);
+    expect(again.zones).toEqual(ride.zones);
+    expect(again.tunnelRange).toEqual(ride.tunnelRange);
+    expect(again.loopRange).toEqual(ride.loopRange);
+    expect(again.dropS).toBe(ride.dropS);
+    expect(again.splashS).toBe(ride.splashS);
+    expect(again.tunnelPoints).toEqual(ride.tunnelPoints);
+    for (let s = 0; s < ride.track.length; s += 47) {
+      expect(again.track.frameAt(s)).toEqual(ride.track.frameAt(s));
+    }
   });
 
   test('stays inside the world bounds', () => {
@@ -42,6 +51,23 @@ describe('buildRide', () => {
   test('never clips terrain outside the tunnel', () => {
     const violations = clearanceViolations(ride.track, world, ride.tunnelRange, 1.4);
     expect(violations).toEqual([]);
+  });
+
+  test('independently never clips terrain (no shared helper with the builder)', () => {
+    const { sStart, sEnd } = ride.tunnelRange;
+    // the skipped tunnel window must stay a bounded slice of the lap, so an
+    // inflated tunnelRange can't hide violations from both builder and test
+    expect((sEnd - sStart + 20) / ride.track.length).toBeLessThan(0.25);
+    for (let s = 0; s < ride.track.length; s += 0.25) {
+      if (s >= sStart - 10 && s <= sEnd + 10) continue;
+      const p = ride.track.posAt(s);
+      const groundTop = world.heightAt(Math.floor(p.x), Math.floor(p.z)) + 1;
+      if (world.get(Math.floor(p.x), world.waterLevel, Math.floor(p.z)) === Block.Water) {
+        expect(p.y).toBeGreaterThan(world.waterLevel + 0.4);
+      } else {
+        expect(p.y - groundTop).toBeGreaterThan(1.3);
+      }
+    }
   });
 
   test('has a real drop: ~20+ meters of plunge after the summit', () => {

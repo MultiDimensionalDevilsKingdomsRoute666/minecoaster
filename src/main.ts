@@ -28,6 +28,14 @@ interface McState {
   camera: CameraMode;
   muted: boolean;
   fireworks: number;
+  /** arc-length landmarks of the ride, for tests and debugging */
+  landmarks: {
+    trackLength: number;
+    dropS: number;
+    splashS: number;
+    tunnel: { sStart: number; sEnd: number };
+    loop: { sStart: number; sEnd: number };
+  };
 }
 
 export interface McApi {
@@ -233,6 +241,13 @@ class Game {
       camera: this.rig.mode,
       muted: this.audio.isMuted,
       fireworks: this.fireworksSeen,
+      landmarks: {
+        trackLength: this.ride.track.length,
+        dropS: this.ride.dropS,
+        splashS: this.ride.splashS,
+        tunnel: this.ride.tunnelRange,
+        loop: this.ride.loopRange,
+      },
     };
   }
 

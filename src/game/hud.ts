@@ -74,7 +74,8 @@ const HUD_CSS = `
   #mc-title { position: absolute; inset: 0; display: flex; flex-direction: column;
     align-items: center; justify-content: center; gap: 28px;
     background: rgba(8, 10, 18, 0.55); pointer-events: auto; transition: opacity 0.6s; }
-  #mc-title.hidden { opacity: 0; pointer-events: none; }
+  #mc-title.hidden { opacity: 0; pointer-events: none; visibility: hidden;
+    transition: opacity 0.6s, visibility 0s 0.6s; }
   #mc-logo { image-rendering: pixelated; width: min(72vw, 560px);
     animation: mc-bob 2.4s ease-in-out infinite;
     filter: drop-shadow(4px 6px 0 rgba(0,0,0,0.5)); }

@@ -20,7 +20,7 @@ jobs:
       - name: Typecheck + build
         run: npm run build
       - name: Install Playwright browser
-        run: npx playwright install --with-deps chromium
+        run: PLAYWRIGHT_BROWSERS_PATH=0 npx playwright install --with-deps chromium
       - name: Integration tests
         run: npm run test:integration
       - name: Upload Playwright report

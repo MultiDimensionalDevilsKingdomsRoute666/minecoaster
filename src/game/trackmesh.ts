@@ -102,15 +102,27 @@ export function buildTrackGroup(track: TrackLike, world: World, seed: number): T
   }
   group.add(ties);
 
-  // support pillars where the track flies above terrain
+  // support pillars where the track flies above terrain — but never on steep
+  // or inverted stretches (a post at the top of the loop would skewer it),
+  // and never where the column would block another passage of the circuit
+  const samples: { x: number; y: number; z: number }[] = [];
+  for (let s = 0; s < track.length; s += 0.5) samples.push(track.posAt(s));
+
   const supports: { x: number; y: number; z: number; h: number }[] = [];
   for (let s = 0; s < track.length; s += SUPPORT_SPACING) {
-    const p = track.posAt(s);
+    const f = track.frameAt(s);
+    if (Math.abs(f.tangent.y) > 0.4 || f.normal.y < 0.3) continue;
+    const p = f.pos;
     const ground = world.heightAt(Math.floor(p.x), Math.floor(p.z)) + 1;
     const clearance = p.y - 0.4 - ground;
-    if (clearance > 1.2 && clearance < 60) {
-      supports.push({ x: p.x, y: ground, z: p.z, h: clearance });
-    }
+    if (clearance <= 1.2 || clearance >= 60) continue;
+    const blocked = samples.some(
+      (q) =>
+        Math.hypot(q.x - p.x, q.z - p.z) < 1.2 &&
+        q.y > ground - 0.5 &&
+        q.y < p.y - 1.2,
+    );
+    if (!blocked) supports.push({ x: p.x, y: ground, z: p.z, h: clearance });
   }
   if (supports.length > 0) {
     const postGeo = new THREE.BoxGeometry(0.35, 1, 0.35);

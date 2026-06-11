@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:integration": "playwright test",
+    "browsers": "PLAYWRIGHT_BROWSERS_PATH=0 playwright install chromium",
+    "test:integration": "PLAYWRIGHT_BROWSERS_PATH=0 playwright test",
     "test:all": "npm run test && npm run build && npm run test:integration"
   },
   "license": "MIT",

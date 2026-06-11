@@ -47,7 +47,9 @@ export class CameraRig {
     const normal = new THREE.Vector3(frame.normal.x, frame.normal.y, frame.normal.z);
 
     if (this.mode === 'onboard') {
-      const seat = pos.clone().addScaledVector(normal, 1.15).addScaledVector(tangent, 0.4);
+      // front-row seat: far enough forward that the cart body reads as a small
+      // hood at the bottom of the frame instead of a wall
+      const seat = pos.clone().addScaledVector(normal, 1.4).addScaledVector(tangent, 0.95);
       // speed shake: layered sines look random but stay deterministic
       const shakeAmp = Math.min(0.1, speed * 0.0022 + curvature * speed * speed * 0.0012);
       seat.addScaledVector(normal, Math.sin(time * 37.1) * shakeAmp);
@@ -57,7 +59,7 @@ export class CameraRig {
       );
       this.camera.position.copy(seat);
       this.camera.up.copy(normal);
-      this.camera.lookAt(seat.clone().addScaledVector(tangent, 10).addScaledVector(normal, 0.6));
+      this.camera.lookAt(seat.clone().addScaledVector(tangent, 12).addScaledVector(normal, 0.35));
       const targetFov = 72 + Math.min(22, speed * 0.55);
       this.fov += (targetFov - this.fov) * Math.min(1, dt * 4);
       this.camera.fov = this.fov;

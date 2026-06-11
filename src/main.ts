@@ -7,7 +7,7 @@ import * as THREE from 'three';
 import { generateWorld, carveTunnel } from './world/worldgen';
 import { WORLD_SEED, buildRide, type Ride } from './coaster/layout';
 import { CoasterSim } from './coaster/physics';
-import { GameScene, DAY_LENGTH_SECONDS } from './game/scene';
+import { GameScene } from './game/scene';
 import { buildTrackGroup, buildCart } from './game/trackmesh';
 import { CameraRig, type CameraMode } from './game/cameras';
 import { Hud } from './game/hud';

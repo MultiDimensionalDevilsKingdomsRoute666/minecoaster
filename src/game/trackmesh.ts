@@ -4,7 +4,7 @@
  * frames), plank cross-ties, and support pillars dropped to the terrain.
  */
 import * as THREE from 'three';
-import type { Track } from '../coaster/track';
+import type { TrackLike } from '../coaster/layout';
 import type { World } from '../world/worldgen';
 import { generateTexture } from '../art/textures';
 import { dataTextureFrom } from './gfx';
@@ -14,7 +14,7 @@ const RAIL_SIZE = 0.12;
 const TIE_SPACING = 1.1;
 const SUPPORT_SPACING = 4;
 
-function railGeometry(track: Track, side: number): THREE.BufferGeometry {
+function railGeometry(track: TrackLike, side: number): THREE.BufferGeometry {
   const step = 0.5;
   const count = Math.ceil(track.length / step);
   const positions: number[] = [];
@@ -65,7 +65,7 @@ function railGeometry(track: Track, side: number): THREE.BufferGeometry {
   return geo;
 }
 
-export function buildTrackGroup(track: Track, world: World, seed: number): THREE.Group {
+export function buildTrackGroup(track: TrackLike, world: World, seed: number): THREE.Group {
   const group = new THREE.Group();
 
   const railMaterial = new THREE.MeshStandardMaterial({
